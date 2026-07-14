@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% block title %}Prediksi Harga — Rumahku{% endblock %}
+{% block content %}
+<div class="page-header-card">
+    <div class="page-header-eyebrow"><i class="bi bi-robot"></i> MACHINE LEARNING</div>
+    <h2>Prediksi Harga Properti</h2>
+    <p>Model yang digunakan: <strong>{{ best_model_name }}</strong></p>
+</div>
+
+{% if error %}
+<div class="alert alert-danger">{{ error }}</div>
+{% endif %}
+{% if warnings_list %}
+    {% for w in warnings_list %}
+    <div class="alert alert-warning">{{ w }}</div>
+    {% endfor %}
+{% endif %}
+{% if prediction %}
+<div class="alert alert-success">
+    <h4 class="alert-heading">Estimasi harga jual: {{ prediction.harga }}</h4>
+    <p class="mb-0 small">Perkiraan rentang wajar: {{ prediction.rentang }} (&plusmn; rata-rata error model / MAE)</p>
+</div>
+{% endif %}
+{% if batch_result %}
+<div class="alert alert-success">Berhasil memprediksi {{ batch_result.n_rows }} baris properti.</div>
+<div class="table-responsive mb-3" style="max-height: 400px; overflow-y: auto;">{{ batch_result.table | safe }}</div>
+<a class="btn btn-outline-primary btn-sm mb-3" href="{{ batch_result.download_href }}" download="hasil_prediksi_rumahku.csv">
+    <i class="bi bi-download"></i> Download Hasil Prediksi (CSV)
+</a>
+<div class="chart-box">{{ batch_result.chart | safe }}</div>
+{% endif %}
+
+<ul class="nav nav-tabs mt-3" role="tablist">
+    <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-manual" type="button">Input Manual</button></li>
+    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-batch" type="button">Upload CSV (Batch)</button></li>
+</ul>
+<div class="tab-content border border-top-0 p-4 bg-white rounded-bottom">
+
+    <div class="tab-pane fade show active" id="tab-manual">
+        <form method="post" action="/prediksi/manual">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Luas tanah (m&sup2;)</label>
+                    <input type="number" step="1" min="30" max="1000" class="form-control" name="luas_tanah" value="200" required>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Luas bangunan (m&sup2;)</label>
+                    <input type="number" step="1" min="20" max="800" class="form-control" name="luas_bangunan" value="150" required>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Jumlah kamar tidur</label>
+                    <input type="number" min="1" max="10" class="form-control" name="kamar_tidur" value="3" required>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Jumlah kamar mandi</label>
+                    <input type="number" min="1" max="8" class="form-control" name="kamar_mandi" value="2" required>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Jumlah lantai</label>
+                    <input type="number" min="1" max="5" class="form-control" name="jumlah_lantai" value="1" required>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Usia bangunan (tahun)</label>
+                    <input type="number" min="0" max="80" class="form-control" name="usia_bangunan" value="10" required>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Jarak ke pusat kota (km)</label>
+                    <input type="number" step="0.5" min="0" max="60" class="form-control" name="jarak_pusat_kota" value="10" required>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Kondisi bangunan</label>
+                    <select class="form-select" name="kondisi_bangunan">
+                        {% for opt in kondisi_options %}
+                        <option value="{{ opt }}" {% if opt == 'Baik' %}selected{% endif %}>{{ opt }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Tipe properti</label>
+                    <select class="form-select" name="tipe_properti">
+                        {% for opt in valid_tipe %}
+                        <option value="{{ opt }}">{{ opt }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Kota</label>
+                    <select class="form-select" name="kota">
+                        {% for opt in valid_kota %}
+                        <option value="{{ opt }}">{{ opt }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Punya garasi?</label>
+                    <select class="form-select" name="garasi">
+                        <option value="Ya">Ya</option>
+                        <option value="Tidak">Tidak</option>
+                    </select>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary mt-4">Prediksi Harga</button>
+        </form>
+    </div>
+
+    <div class="tab-pane fade" id="tab-batch">
+        <p>Unggah file CSV berisi banyak properti sekaligus untuk mendapatkan estimasi harga
+           semuanya dalam satu proses.</p>
+        <a class="btn btn-outline-secondary btn-sm mb-3" href="/prediksi/template.csv">
+            <i class="bi bi-download"></i> Download Template CSV
+        </a>
+        <p class="text-muted small">Kolom wajib: {{ all_features | join(", ") }}</p>
+        <form method="post" action="/prediksi/batch" enctype="multipart/form-data">
+            <div class="mb-3">
+                <input class="form-control" type="file" name="file" accept=".csv" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Prediksi Batch</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

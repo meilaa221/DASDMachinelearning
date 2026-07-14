@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Dokumentasi — Rumahku{% endblock %}
+{% block content %}
+<div class="page-header-card">
+    <div class="page-header-eyebrow"><i class="bi bi-book"></i> PANDUAN APLIKASI</div>
+    <h2>Dokumentasi Penggunaan Aplikasi</h2>
+    <p>Panduan menjalankan dan memakai fitur-fitur dashboard</p>
+</div>
+
+<h5 class="section-title"><i class="bi bi-terminal"></i> Cara menjalankan aplikasi</h5>
+<pre class="bg-light p-3 rounded"><code>pip install -r requirements.txt
+uvicorn app.main:app --reload</code></pre>
+<p class="text-muted small">Jalankan dari folder root proyek. Buka <code>http://127.0.0.1:8000</code> di browser.</p>
+
+<h5 class="section-title"><i class="bi bi-signpost-split"></i> Panduan navigasi (sidebar kiri)</h5>
+<table class="table table-sm table-bordered">
+    <thead><tr><th>Halaman</th><th>Fungsi</th></tr></thead>
+    <tbody>
+        <tr><td><strong>Halaman Utama</strong></td><td>Ringkasan agregat dataset dan tujuan aplikasi</td></tr>
+        <tr><td><strong>Tampilan Dataset</strong></td><td>Melihat contoh data, statistik deskriptif, dan kualitas data</td></tr>
+        <tr><td><strong>Visualisasi</strong></td><td>Eksplorasi interaktif pola harga berdasarkan tipe, kondisi, lokasi, dan luas</td></tr>
+        <tr><td><strong>Prediksi Harga</strong></td><td>Prediksi manual (form) atau batch (upload CSV)</td></tr>
+        <tr><td><strong>Evaluasi Model</strong></td><td>Metrik performa dan grafik aktual vs prediksi tiap model</td></tr>
+        <tr><td><strong>Insight</strong></td><td>Temuan utama dari analisis data dan model</td></tr>
+        <tr><td><strong>Rekomendasi</strong></td><td>Saran keputusan untuk bisnis, pengguna, dan pengembangan lanjutan</td></tr>
+    </tbody>
+</table>
+
+<h5 class="section-title"><i class="bi bi-cursor"></i> Cara menggunakan fitur prediksi manual</h5>
+<ol>
+    <li>Buka halaman <strong>Prediksi Harga</strong>, tab <strong>Input Manual</strong>.</li>
+    <li>Isi seluruh kolom sesuai karakteristik properti yang ingin diestimasi harganya.</li>
+    <li>Klik tombol <strong>Prediksi Harga</strong>.</li>
+    <li>Hasil estimasi beserta rentang wajar (&plusmn; MAE model) akan ditampilkan.</li>
+</ol>
+
+<h5 class="section-title"><i class="bi bi-upload"></i> Cara menggunakan fitur prediksi batch (upload CSV)</h5>
+<ol>
+    <li>Buka halaman <strong>Prediksi Harga</strong>, tab <strong>Upload CSV (Batch)</strong>.</li>
+    <li>(Opsional) Klik <strong>Download Template CSV</strong> untuk melihat format kolom yang dibutuhkan.</li>
+    <li>Upload file CSV berisi banyak properti sekaligus.</li>
+    <li>Aplikasi otomatis memvalidasi &amp; membersihkan data yang kosong/tidak valid (lihat pesan
+        peringatan jika ada), lalu menampilkan hasil prediksi untuk semua baris.</li>
+    <li>Klik <strong>Download Hasil Prediksi (CSV)</strong> untuk menyimpan hasilnya.</li>
+</ol>
+
+<h5 class="section-title"><i class="bi bi-gear"></i> Catatan teknis</h5>
+<ul>
+    <li>Model dan metrik dimuat dari folder <code>models/</code> (file <code>.pkl</code>,
+        <code>.csv</code>, <code>.json</code>) yang dihasilkan oleh <code>src/train_model.py</code>
+        — aplikasi <strong>tidak</strong> melakukan training ulang setiap kali dijalankan,
+        sehingga tetap responsif.</li>
+    <li>Missing value pada fitur diisi otomatis oleh <strong>KNN Imputer</strong> di dalam
+        pipeline (bukan dihapus barisnya), termasuk untuk data baru yang diunggah lewat fitur
+        batch.</li>
+    <li>Untuk melatih ulang model (mis. setelah data diperbarui), jalankan:
+        <pre class="bg-light p-3 rounded"><code>cd src
+python train_model.py</code></pre>
+    </li>
+</ul>
+{% endblock %}

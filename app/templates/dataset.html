@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Tampilan Dataset — Rumahku{% endblock %}
+{% block content %}
+<div class="page-header-card">
+    <div class="page-header-eyebrow"><i class="bi bi-folder2-open"></i> DATA EXPLORATION</div>
+    <h2>Tampilan Dataset</h2>
+    <p>Rumahku House Prices — ringkasan data sebelum dan sesudah pembersihan</p>
+</div>
+
+<ul class="nav nav-tabs" id="datasetTabs" role="tablist">
+    <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-sample" type="button">Contoh Data</button></li>
+    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-stats" type="button">Ringkasan Statistik</button></li>
+    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-quality" type="button">Kualitas Data</button></li>
+</ul>
+<div class="tab-content border border-top-0 p-3 bg-white rounded-bottom">
+    <div class="tab-pane fade show active" id="tab-sample">
+        <form method="get" class="row g-2 align-items-center mb-3">
+            <div class="col-auto">
+                <label class="col-form-label">Jumlah baris ditampilkan</label>
+            </div>
+            <div class="col-auto">
+                <input type="number" class="form-control" name="n" value="{{ n_rows_shown }}" min="5" max="100">
+            </div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-sm btn-primary">Tampilkan</button>
+            </div>
+        </form>
+        <div class="table-responsive">{{ sample_table | safe }}</div>
+        <p class="text-muted small mt-2">Data bersih: {{ shape_clean }} (dari {{ shape_raw }} mentah)</p>
+    </div>
+    <div class="tab-pane fade" id="tab-stats">
+        <div class="table-responsive">{{ describe_table | safe }}</div>
+    </div>
+    <div class="tab-pane fade" id="tab-quality">
+        <p class="mb-2"><strong>Missing value pada data mentah:</strong></p>
+        {% if missing_table %}
+        <div class="table-responsive mb-3">{{ missing_table | safe }}</div>
+        {% else %}
+        <p class="text-muted">Tidak ada missing value.</p>
+        {% endif %}
+
+        <div class="status-item">
+            <div class="status-dot {% if n_duplicated > 0 %}warn{% endif %}"></div>
+            <div>
+                <strong>Baris duplikat: {{ n_duplicated }}</strong>
+                <div class="text-muted small">Dicek dua arah: baris identik dan id_properti ganda.</div>
+            </div>
+        </div>
+        <div class="status-item">
+            <div class="status-dot warn"></div>
+            <div>
+                <strong>Baris dibuang saat cleaning: {{ n_dropped_target }}</strong>
+                <div class="text-muted small">Hanya baris dengan target (harga_jual) kosong yang dihapus.</div>
+            </div>
+        </div>
+        <div class="status-item">
+            <div class="status-dot"></div>
+            <div>
+                <strong>Missing value pada fitur ditangani otomatis</strong>
+                <div class="text-muted small">Diisi oleh KNN Imputer di dalam pipeline model, bukan dihapus
+                    barisnya — lihat halaman Dokumentasi.</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

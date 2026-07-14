@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}Insight — Rumahku{% endblock %}
+{% block content %}
+<div class="page-header-card">
+    <div class="page-header-eyebrow"><i class="bi bi-lightbulb"></i> TEMUAN DATA</div>
+    <h2>Insight Utama</h2>
+    <p>Temuan utama dari analisis data dan model</p>
+</div>
+
+<h5 class="section-title"><i class="bi bi-1-circle"></i> Faktor Penentu Harga</h5>
+
+<div class="insight-item">
+    <div class="insight-num">1</div>
+    <div class="insight-text"><strong>Fitur paling berpengaruh menurut model {{ best_model_name }}</strong> (model terbaik
+        yang dipakai aplikasi ini) <strong>adalah "{{ top_feat_label }}"</strong>, menyumbang
+        &asymp;{{ top_feat_share }}% dari total feature importance. Ukuran properti
+        (<code>luas_tanah</code> + <code>luas_bangunan</code> digabung) juga tetap salah satu
+        kelompok fitur terpenting, menyumbang total &asymp;{{ luas_share }}% — jauh melebihi
+        fitur lain seperti jumlah kamar atau usia bangunan.</div>
+</div>
+<div class="insight-item">
+    <div class="insight-num">2</div>
+    <div class="insight-text"><strong>Lokasi (kota) adalah pengungkit harga per m&sup2; terkuat kedua</strong> — harga
+        per m&sup2; di {{ kota_termahal }} (&asymp;Rp {{ harga_m2_termahal }} jt/m&sup2;) hampir
+        <strong>2x lipat</strong> dibanding {{ kota_termurah }} (&asymp;Rp {{ harga_m2_termurah }}
+        jt/m&sup2;), signifikan secara statistik (ANOVA p &lt; 0.001).</div>
+</div>
+<div class="insight-item">
+    <div class="insight-num">3</div>
+    <div class="insight-text"><strong>Tipe properti membawa premium tersendiri di luar ukuran</strong> — {{ tipe_termahal }}
+        &asymp;{{ tipe_premium_pct }}% lebih mahal per m&sup2; dibanding {{ tipe_termurah }}, meski
+        luas bangunannya identik (ANOVA p &lt; 0.001).</div>
+</div>
+<div class="insight-item">
+    <div class="insight-num">4</div>
+    <div class="insight-text"><strong>Segmen termahal = kombinasi spesifik {{ termahal_tipe }} di {{ termahal_kota }}</strong>
+        (&asymp;Rp {{ harga_termahal_segmen }} juta rata-rata), sekitar <strong>{{ segmen_ratio }}x</strong>
+        lebih mahal dari kombinasi termurah ({{ termurah_tipe }} di {{ termurah_kota }}).</div>
+</div>
+<div class="insight-item">
+    <div class="insight-num">5</div>
+    <div class="insight-text"><strong>Jarak ke pusat kota berpengaruh jelas &amp; monoton</strong> — harga turun
+        &asymp;{{ penurunan_jarak }}% dari properti 0-10 km ke 20-30 km dari pusat kota.</div>
+</div>
+
+<h5 class="section-title"><i class="bi bi-2-circle"></i> Faktor yang Ternyata Kurang Berpengaruh</h5>
+
+<div class="insight-item">
+    <div class="insight-num">6</div>
+    <div class="insight-text"><strong>Usia bangunan nyaris tidak berpengaruh</strong> — selisih harga antar kelompok usia
+        bangunan &lt; 6% dan polanya tidak monoton, kemungkinan karena renovasi lebih menentukan
+        daripada usia absolut.</div>
+</div>
+<div class="insight-item">
+    <div class="insight-num">7</div>
+    <div class="insight-text"><strong>Kondisi bangunan signifikan secara statistik tapi dampak praktisnya kecil</strong> —
+        hanya &asymp;6% selisih harga per m&sup2; antara kondisi "Baik" dan "Buruk", jauh lebih
+        kecil dari efek kota (&asymp;2x) atau tipe properti (&asymp;{{ tipe_premium_pct }}%).</div>
+</div>
+<div class="insight-item">
+    <div class="insight-num">8</div>
+    <div class="insight-text"><strong>Jumlah kamar tidur/mandi, jumlah lantai, dan garasi hampir tidak berpengaruh
+        terhadap harga total</strong> (feature importance masing-masing &lt; 0.3%) — namun
+        menariknya, harga <strong>per m&sup2;</strong> tetap naik seiring bertambahnya jumlah
+        kamar, mengindikasikan properti dengan banyak kamar dianggap lebih fungsional per satuan
+        luas, bukan sekadar lebih besar.</div>
+</div>
+
+<h5 class="section-title"><i class="bi bi-3-circle"></i> Segmentasi Pasar &amp; Model</h5>
+
+<div class="insight-item">
+    <div class="insight-num">9</div>
+    <div class="insight-text"><strong>Pasar properti mewah adalah niche sempit</strong>: <strong>{{ pct_mewah_jakarta }}%</strong>
+        properti di segmen harga termahal (tercile atas) berlokasi di Jakarta, dan
+        <strong>{{ pct_mewah_villa }}%</strong> bertipe Villa — jauh di atas proporsi kedua
+        kategori itu di segmen Murah/Menengah.</div>
+</div>
+<div class="insight-item">
+    <div class="insight-num">10</div>
+    <div class="insight-text"><strong>{{ best_model_name }} adalah model paling akurat</strong> (R&sup2; &asymp; {{ best_r2 }}),
+        mengungguli Linear Regression (R&sup2; &asymp; {{ linreg_r2 }}) — mengonfirmasi bahwa
+        hubungan luas/lokasi/tipe terhadap harga bersifat non-linear dan melibatkan interaksi
+        antar fitur (lihat peta panas Kota x Tipe di halaman Visualisasi).</div>
+</div>
+
+<h5 class="section-title"><i class="bi bi-bar-chart"></i> Visualisasi Pendukung</h5>
+<div class="chart-box">{{ charts.top_features | safe }}</div>
+<div class="row">
+    <div class="col-md-6"><div class="chart-box">{{ charts.harga_m2_kota | safe }}</div></div>
+    <div class="col-md-6"><div class="chart-box">{{ charts.segmen_kota | safe }}</div></div>
+</div>
+{% endblock %}

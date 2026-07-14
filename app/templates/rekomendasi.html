@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Rekomendasi — Rumahku{% endblock %}
+{% block content %}
+<div class="page-header-card">
+    <div class="page-header-eyebrow"><i class="bi bi-clipboard-check"></i> STRATEGIC ACTION</div>
+    <h2>Rekomendasi Keputusan</h2>
+    <p>Saran keputusan untuk bisnis, pengguna, dan pengembangan lanjutan</p>
+</div>
+
+<h5 class="section-title"><i class="bi bi-building"></i> Untuk tim produk/bisnis Rumahku</h5>
+<ul>
+    <li>Gunakan model ini sebagai <strong>fitur estimasi harga otomatis</strong> saat penjual
+        memasang listing baru, agar harga yang ditawarkan lebih realistis dan cepat menemukan
+        pembeli.</li>
+    <li>Karena luas tanah/bangunan mendominasi harga, prioritaskan pengumpulan data ini secara
+        akurat (mis. validasi sertifikat/IMB) dibanding data sekunder seperti jumlah kamar.</li>
+    <li>Pertimbangkan model harga <strong>terpisah per kota</strong> (khususnya Jakarta) karena
+        premi lokasi yang tidak linear — berpotensi meningkatkan akurasi lebih lanjut.</li>
+</ul>
+
+<h5 class="section-title"><i class="bi bi-person"></i> Untuk pengguna/penjual</h5>
+<ul>
+    <li>Kondisi bangunan "Baik" tidak selalu bernilai jauh lebih tinggi daripada "Cukup" —
+        investasi renovasi besar-besaran sebaiknya dipertimbangkan matang terhadap potensi
+        kenaikan harga jual riil.</li>
+    <li>Estimasi model paling andal untuk properti dengan karakteristik umum (luas dan lokasi
+        dalam rentang data yang tersedia); untuk properti sangat unik (sangat luas/sangat tua),
+        tetap konsultasikan ke agen properti berpengalaman.</li>
+</ul>
+
+<h5 class="section-title"><i class="bi bi-rocket-takeoff"></i> Untuk pengembangan model selanjutnya</h5>
+<ul>
+    <li>Tambahkan fitur baru: fasilitas sekitar (sekolah, mall), tahun renovasi terakhir, atau
+        harga pasar terkini per kota agar model lebih adaptif terhadap tren pasar.</li>
+    <li>Lakukan hyperparameter tuning lebih lanjut pada model terbaik untuk potensi peningkatan
+        akurasi tambahan.</li>
+    <li>Gunakan fitur <strong>Upload CSV (Batch)</strong> di halaman Prediksi untuk mengevaluasi
+        banyak listing properti sekaligus sebelum dipublikasikan.</li>
+</ul>
+{% endblock %}

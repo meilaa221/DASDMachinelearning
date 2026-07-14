@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}Halaman Utama — Rumahku{% endblock %}
+{% block content %}
+<div class="page-header-card">
+    <div class="page-header-eyebrow"><i class="bi bi-house-door"></i> DASHBOARD PROPERTI</div>
+    <h2>Rumahku — Estimasi Harga Properti</h2>
+    <p>Ringkasan dataset dan tujuan aplikasi</p>
+</div>
+
+<div class="info-card">
+    <p class="page-lead mb-3">
+        <strong>Rumahku</strong> adalah aplikasi sains data untuk membantu penjual, pembeli, maupun
+        agen properti memperkirakan <strong>harga jual rumah/villa/townhouse</strong> secara cepat
+        berdasarkan karakteristik fisik properti dan lokasinya, serta memahami pola pasar properti
+        di 5 kota besar (Jakarta, Bandung, Surabaya, Semarang, Medan).
+    </p>
+    <p class="mb-2"><strong>Tujuan aplikasi:</strong></p>
+    <ul class="mb-2">
+        <li>Memberikan estimasi harga jual awal yang objektif dan berbasis data historis.</li>
+        <li>Membantu memahami faktor apa saja yang paling memengaruhi harga properti.</li>
+        <li>Menyediakan model machine learning yang bisa dipakai langsung untuk prediksi tunggal
+            maupun batch (unggah file), lengkap dengan evaluasi dan insight-nya.</li>
+    </ul>
+    <p class="mb-0 text-muted small"><i class="bi bi-arrow-right-circle"></i> Gunakan menu di sidebar
+       kiri untuk menjelajahi dataset, visualisasi, prediksi, evaluasi model, insight, dan
+       rekomendasi.</p>
+</div>
+
+<div class="row g-3 my-2">
+    <div class="col-md-3">
+        <div class="metric-card">
+            <div class="metric-icon"><i class="bi bi-houses"></i></div>
+            <div class="metric-label">Jumlah properti (data historis)</div>
+            <div class="metric-value">{{ jumlah_properti }}</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="metric-card">
+            <div class="metric-icon"><i class="bi bi-cash-stack"></i></div>
+            <div class="metric-label">Harga rata-rata</div>
+            <div class="metric-value">{{ harga_rata2 }}</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="metric-card">
+            <div class="metric-icon"><i class="bi bi-bar-chart-steps"></i></div>
+            <div class="metric-label">Harga median</div>
+            <div class="metric-value">{{ harga_median }}</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="metric-card">
+            <div class="metric-icon"><i class="bi bi-trophy"></i></div>
+            <div class="metric-label">Model terbaik</div>
+            <div class="metric-value">{{ best_model_name }}</div>
+        </div>
+    </div>
+</div>
+
+<h5 class="section-title"><i class="bi bi-clipboard-data"></i> Ringkasan Agregat</h5>
+<p class="section-caption">Seluruh grafik di bawah menampilkan data teragregasi (rata-rata/distribusi),
+   bukan tabel data mentah baris per baris.</p>
+
+<div class="row">
+    <div class="col-md-6"><div class="chart-box">{{ charts.distribusi_harga | safe }}</div></div>
+    <div class="col-md-6"><div class="chart-box">{{ charts.harga_per_kota | safe }}</div></div>
+    <div class="col-md-6"><div class="chart-box">{{ charts.harga_per_tipe | safe }}</div></div>
+    <div class="col-md-6"><div class="chart-box">{{ charts.proporsi_kota | safe }}</div></div>
+</div>
+{% endblock %}

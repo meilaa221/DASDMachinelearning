@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Evaluasi Model — Rumahku{% endblock %}
+{% block content %}
+<div class="page-header-card">
+    <div class="page-header-eyebrow"><i class="bi bi-graph-up"></i> MODEL PERFORMANCE</div>
+    <h2>Evaluasi Model</h2>
+    <p>Perbandingan performa 4 model regresi pada data uji (20% data, tidak dilihat model saat training)</p>
+</div>
+
+<div class="table-responsive mb-4">{{ metrics_table | safe }}</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="chart-box">
+            <div class="chart-box-title"><i class="bi bi-trophy"></i> Perbandingan R&sup2; Score</div>
+            <p class="section-caption">Semakin tinggi, semakin baik model menjelaskan variasi harga.</p>
+            {% for m in model_bars %}
+            <div class="progress-row">
+                <div class="progress-label">
+                    <span>{{ m.name }}{% if m.is_best %} <i class="bi bi-star-fill text-warning"></i>{% endif %}</span>
+                    <span class="value">{{ m.r2_pct }}%</span>
+                </div>
+                <div class="progress-track">
+                    <div class="progress-fill" style="width: {{ m.r2_pct }}%;"></div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="col-md-6"><div class="chart-box">{{ charts.rmse_bar | safe }}</div></div>
+</div>
+
+<h5 class="section-title"><i class="bi bi-bullseye"></i> Aktual vs Prediksi — {{ best_model_name }}</h5>
+<div class="chart-box">{{ charts.aktual_vs_prediksi | safe }}</div>
+
+<div class="alert alert-info mt-3">
+    <strong>Arti hasil evaluasi bagi pengambilan keputusan:</strong><br>
+    RMSE {{ best_model_name }} &asymp; {{ rmse_val }} juta pada harga rata-rata &asymp; Rp {{ harga_rata2 }} juta,
+    atau sekitar <strong>{{ rmse_pct }}% dari harga rata-rata</strong>.
+    R&sup2; sebesar {{ r2_val }} berarti model menjelaskan {{ r2_pct }}% variasi harga.
+    Model ini layak dipakai sebagai <strong>estimasi awal</strong>, namun untuk transaksi bernilai
+    besar tetap disarankan konfirmasi dari penilai profesional.
+</div>
+{% endblock %}

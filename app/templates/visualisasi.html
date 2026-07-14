@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Visualisasi — Rumahku{% endblock %}
+{% block content %}
+<div class="page-header-card">
+    <div class="page-header-eyebrow"><i class="bi bi-bar-chart"></i> ANALISIS VISUAL</div>
+    <h2>Visualisasi Data</h2>
+    <p>Seluruh grafik memakai data teragregasi dari dataset historis — bukan tabel mentah</p>
+</div>
+
+<h5 class="section-title"><i class="bi bi-graph-up"></i> Distribusi Harga berdasarkan Kategori</h5>
+<div class="row">
+    <div class="col-md-6"><div class="chart-box">{{ charts.harga_per_tipe_box | safe }}</div></div>
+    <div class="col-md-6"><div class="chart-box">{{ charts.harga_per_kondisi_box | safe }}</div></div>
+</div>
+
+<h5 class="section-title"><i class="bi bi-graph-up-arrow"></i> Hubungan Luas Properti dengan Harga</h5>
+<div class="chart-box">{{ charts.luas_vs_harga | safe }}</div>
+
+<h5 class="section-title"><i class="bi bi-grid-3x3"></i> Korelasi Fitur Numerik</h5>
+<div class="chart-box">{{ charts.korelasi | safe }}</div>
+
+<hr>
+<h4 class="section-title"><i class="bi bi-search"></i> Analisis Lanjutan: Harga per m&sup2; (Menormalkan Efek Ukuran)</h4>
+<p class="section-caption">Membagi harga_jual dengan luas_bangunan mengungkap efek murni lokasi,
+   tipe, kondisi, dan jumlah ruangan terhadap nilai properti, terlepas dari ukurannya.</p>
+
+<div class="row">
+    <div class="col-md-6"><div class="chart-box">{{ charts.harga_m2_kota | safe }}</div></div>
+    <div class="col-md-6"><div class="chart-box">{{ charts.harga_m2_tipe | safe }}</div></div>
+</div>
+
+<h5 class="section-title"><i class="bi bi-map"></i> Peta Harga: Interaksi Kota x Tipe Properti</h5>
+<div class="chart-box">{{ charts.peta_harga | safe }}</div>
+
+<div class="row">
+    <div class="col-md-6"><div class="chart-box">{{ charts.harga_vs_jarak | safe }}</div></div>
+    <div class="col-md-6"><div class="chart-box">{{ charts.harga_vs_usia | safe }}</div></div>
+</div>
+
+<div class="row">
+    <div class="col-md-6"><div class="chart-box">{{ charts.harga_m2_kamar_tidur | safe }}</div></div>
+    <div class="col-md-6"><div class="chart-box">{{ charts.harga_m2_kondisi | safe }}</div></div>
+</div>
+
+<h5 class="section-title"><i class="bi bi-pie-chart"></i> Segmentasi Pasar: Murah / Menengah / Mewah</h5>
+<div class="row">
+    <div class="col-md-6"><div class="chart-box">{{ charts.segmen_kota | safe }}</div></div>
+    <div class="col-md-6"><div class="chart-box">{{ charts.segmen_tipe | safe }}</div></div>
+</div>
+{% endblock %}
