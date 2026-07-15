@@ -613,3 +613,76 @@ hr {
 ol li, ul li {
     margin-bottom: 0.5rem;
 }
+
+/* ---------------------------------- Responsive (mobile/tablet) ---------------------------------- */
+.sidebar-toggle {
+    display: none;
+    border: none;
+    background: var(--bg);
+    color: var(--text-main);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    font-size: 1.2rem;
+    align-items: center;
+    justify-content: center;
+}
+
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(6, 78, 59, 0.45);
+    z-index: 90;
+}
+
+.sidebar-overlay.show {
+    display: block;
+}
+
+@media (max-width: 991.98px) {
+    .sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.25s ease;
+        box-shadow: var(--shadow-md);
+    }
+
+    .sidebar.open {
+        transform: translateX(0);
+    }
+
+    .content {
+        margin-left: 0;
+        width: 100%;
+    }
+
+    .sidebar-toggle {
+        display: flex;
+    }
+
+    .topbar {
+        padding: 1rem 1.25rem;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .page-body {
+        padding: 1.1rem 1rem 2rem 1rem;
+    }
+
+    .page-header-card {
+        padding: 1.25rem 1.35rem;
+    }
+
+    .page-header-card h2 {
+        font-size: 1.3rem;
+    }
+
+    .metric-card {
+        padding: 1rem 1.1rem;
+    }
+
+    .topbar {
+        padding: 0.85rem 1rem;
+    }
+}
