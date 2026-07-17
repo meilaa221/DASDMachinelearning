@@ -242,8 +242,3 @@ def insight_charts(df: pd.DataFrame, importance_df: pd.DataFrame, best_model_nam
                title="Komposisi Kota per Segmen Harga", labels={"value": "Proporsi"})
     )
     return charts
-
-
-def batch_result_chart(result: pd.DataFrame):
-    fig = px.histogram(result, x="harga_prediksi", nbins=30, title="Distribusi Hasil Prediksi (Agregat)")
-    return _to_html(fig)

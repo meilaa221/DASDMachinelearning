@@ -10,33 +10,14 @@
 {% if error %}
 <div class="alert alert-danger">{{ error }}</div>
 {% endif %}
-{% if warnings_list %}
-    {% for w in warnings_list %}
-    <div class="alert alert-warning">{{ w }}</div>
-    {% endfor %}
-{% endif %}
 {% if prediction %}
 <div class="alert alert-success">
     <h4 class="alert-heading">Estimasi harga jual: {{ prediction.harga }}</h4>
     <p class="mb-0 small">Perkiraan rentang wajar: {{ prediction.rentang }} (&plusmn; rata-rata error model / MAE)</p>
 </div>
 {% endif %}
-{% if batch_result %}
-<div class="alert alert-success">Berhasil memprediksi {{ batch_result.n_rows }} baris properti.</div>
-<div class="table-responsive mb-3" style="max-height: 400px; overflow-y: auto;">{{ batch_result.table | safe }}</div>
-<a class="btn btn-outline-primary btn-sm mb-3" href="{{ batch_result.download_href }}" download="hasil_prediksi_rumahku.csv">
-    <i class="bi bi-download"></i> Download Hasil Prediksi (CSV)
-</a>
-<div class="chart-box">{{ batch_result.chart | safe }}</div>
-{% endif %}
 
-<ul class="nav nav-tabs mt-3" role="tablist">
-    <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-manual" type="button">Input Manual</button></li>
-    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-batch" type="button">Upload CSV (Batch)</button></li>
-</ul>
-<div class="tab-content border border-top-0 p-4 bg-white rounded-bottom">
-
-    <div class="tab-pane fade show active" id="tab-manual">
+<div class="border p-4 bg-white rounded">
         <form method="post" action="/prediksi/manual">
             <div class="row g-3">
                 <div class="col-md-4">
@@ -101,21 +82,5 @@
             </div>
             <button type="submit" class="btn btn-primary mt-4">Prediksi Harga</button>
         </form>
-    </div>
-
-    <div class="tab-pane fade" id="tab-batch">
-        <p>Unggah file CSV berisi banyak properti sekaligus untuk mendapatkan estimasi harga
-           semuanya dalam satu proses.</p>
-        <a class="btn btn-outline-secondary btn-sm mb-3" href="/prediksi/template.csv">
-            <i class="bi bi-download"></i> Download Template CSV
-        </a>
-        <p class="text-muted small">Kolom wajib: {{ all_features | join(", ") }}</p>
-        <form method="post" action="/prediksi/batch" enctype="multipart/form-data">
-            <div class="mb-3">
-                <input class="form-control" type="file" name="file" accept=".csv" required>
-            </div>
-            <button type="submit" class="btn btn-primary">Prediksi Batch</button>
-        </form>
-    </div>
 </div>
 {% endblock %}

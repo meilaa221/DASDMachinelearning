@@ -1,0 +1,13 @@
+.git/
+.github/
+.venv/
+venv/
+notebooks/
+docs/
+logs/
+backups/
+*.md
+.claude/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/

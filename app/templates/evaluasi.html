@@ -33,6 +33,26 @@
 <h5 class="section-title"><i class="bi bi-bullseye"></i> Aktual vs Prediksi — {{ best_model_name }}</h5>
 <div class="chart-box">{{ charts.aktual_vs_prediksi | safe }}</div>
 
+{% if best_hyperparams %}
+<h5 class="section-title mt-4"><i class="bi bi-sliders"></i> Hyperparameter Tuning &amp; Feature Selection — {{ best_model_name }}</h5>
+<p class="section-caption">
+    Model {{ best_model_name }} dipilih lewat perbandingan 4 algoritma dengan parameter default,
+    lalu di-tuning lebih lanjut memakai <code>RandomizedSearchCV</code> (25 kombinasi &times; 5-fold
+    cross-validation) digabung dengan <code>SelectKBest</code> untuk seleksi fitur.
+    {% if cv_best_r2 %}CV R&sup2; terbaik selama pencarian: <strong>{{ "%.4f"|format(cv_best_r2) }}</strong>.{% endif %}
+</p>
+<div class="table-responsive">
+    <table class="table table-sm table-striped dataframe">
+        <thead><tr><th>Parameter</th><th>Nilai Terbaik</th></tr></thead>
+        <tbody>
+            {% for param, value in best_hyperparams.items() %}
+            <tr><td><code>{{ param }}</code></td><td>{{ value }}</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+
 <div class="alert alert-info mt-3">
     <strong>Arti hasil evaluasi bagi pengambilan keputusan:</strong><br>
     RMSE {{ best_model_name }} &asymp; {{ rmse_val }} juta pada harga rata-rata &asymp; Rp {{ harga_rata2 }} juta,

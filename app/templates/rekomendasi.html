@@ -32,9 +32,12 @@
 <ul>
     <li>Tambahkan fitur baru: fasilitas sekitar (sekolah, mall), tahun renovasi terakhir, atau
         harga pasar terkini per kota agar model lebih adaptif terhadap tren pasar.</li>
-    <li>Lakukan hyperparameter tuning lebih lanjut pada model terbaik untuk potensi peningkatan
-        akurasi tambahan.</li>
-    <li>Gunakan fitur <strong>Upload CSV (Batch)</strong> di halaman Prediksi untuk mengevaluasi
-        banyak listing properti sekaligus sebelum dipublikasikan.</li>
+    <li><strong>Hyperparameter tuning &amp; feature selection sudah diterapkan</strong> pada model
+        terbaik ({{ best_model_name }}) memakai <code>RandomizedSearchCV</code> (25 iterasi,
+        5-fold cross-validation) dan <code>SelectKBest</code> — lihat detail parameter yang
+        ditemukan di halaman <strong>Evaluasi Model</strong>. Hasilnya R&sup2; hampir tidak berubah
+        dari baseline, menandakan parameter manual awal sudah mendekati optimal untuk dataset ini;
+        eksplorasi ruang pencarian yang lebih luas (n_iter lebih besar, rentang parameter lebih
+        lebar) berpotensi masih memberi perbaikan kecil.</li>
 </ul>
 {% endblock %}

@@ -3,27 +3,49 @@
 Jalankan dengan: uvicorn app.main:app --reload
 (dari folder root proyek, C:\\DASD\\tugasbesardasd)
 """
-import base64
-import io
 import os
+import time
 
 import pandas as pd
-from fastapi import FastAPI, Form, Request, UploadFile
-from fastapi.responses import HTMLResponse, StreamingResponse
+from fastapi import FastAPI, Form, Request
+from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from slowapi.util import get_remote_address
 
 from . import charts
+from .logging_config import logger
 from .services import (
-    ALL_FEATURES, ORDINAL_ORDER, TARGET, get_valid_categories, load_data,
-    load_feature_importance, load_metrics, load_model, load_test_predictions,
-    validate_and_clean_batch,
+    ALL_FEATURES, ORDINAL_ORDER, TARGET, get_valid_categories, load_best_hyperparameters,
+    load_data, load_feature_importance, load_metrics, load_model, load_test_predictions,
 )
 
 APP_DIR = os.path.dirname(__file__)
 app = FastAPI(title="Rumahku House Price")
 app.mount("/static", StaticFiles(directory=os.path.join(APP_DIR, "static")), name="static")
 templates = Jinja2Templates(directory=os.path.join(APP_DIR, "templates"))
+
+# Rate limiting — protects the prediction endpoint from scripted abuse without
+# requiring login for the public dashboard pages, which need to stay open for
+# the demo/sidang.
+limiter = Limiter(key_func=get_remote_address)
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+
+@app.middleware("http")
+async def log_requests(request: Request, call_next):
+    t0 = time.time()
+    response = await call_next(request)
+    duration_ms = (time.time() - t0) * 1000
+    logger.info(
+        "%s %s -> %d (%.1fms) client=%s",
+        request.method, request.url.path, response.status_code,
+        duration_ms, request.client.host if request.client else "?",
+    )
+    return response
 
 NAV_ITEMS = [
     {"path": "/", "icon": "bi-house", "label": "Halaman Utama"},
@@ -110,12 +132,12 @@ def prediksi_form(request: Request):
         "kondisi_options": ORDINAL_ORDER[0],
         "all_features": ALL_FEATURES,
         "prediction": None,
-        "batch_result": None,
     })
     return templates.TemplateResponse(request, "prediksi.html", ctx)
 
 
 @app.post("/prediksi/manual", response_class=HTMLResponse)
+@limiter.limit("20/minute")
 def prediksi_manual(
     request: Request,
     luas_tanah: float = Form(...),
@@ -158,8 +180,10 @@ def prediksi_manual(
             "harga": f"Rp {pred:,.1f} juta",
             "rentang": f"Rp {pred - mae:,.0f} juta – Rp {pred + mae:,.0f} juta",
         }
+        logger.info("Prediksi manual sukses: kota=%s tipe=%s -> harga=%.1f juta", kota, tipe_properti, pred)
     except Exception as e:
         error = f"Gagal membuat prediksi: {e}"
+        logger.warning("Prediksi manual gagal: %s", e)
 
     ctx = base_context(request, "/prediksi")
     ctx.update({
@@ -169,74 +193,8 @@ def prediksi_manual(
         "all_features": ALL_FEATURES,
         "prediction": prediction,
         "error": error,
-        "batch_result": None,
     })
     return templates.TemplateResponse(request, "prediksi.html", ctx)
-
-
-@app.post("/prediksi/batch", response_class=HTMLResponse)
-async def prediksi_batch(request: Request, file: UploadFile):
-    model, best_name = load_model()
-    _, df = load_data()
-    valid_kota, valid_tipe = get_valid_categories(df)
-
-    batch_result = None
-    error = None
-    warnings_list = []
-
-    raw_bytes = await file.read()
-    if not raw_bytes:
-        error = "File kosong — tidak ada isi yang diunggah."
-    else:
-        try:
-            df_upload = pd.read_csv(io.BytesIO(raw_bytes))
-        except Exception as e:
-            error = f"File tidak bisa dibaca sebagai CSV yang valid: {e}"
-        else:
-            clean, warnings_list, fatal_errors = validate_and_clean_batch(df_upload, df)
-            if fatal_errors:
-                error = " ".join(fatal_errors)
-            else:
-                try:
-                    preds = model.predict(clean)
-                except Exception as e:
-                    error = f"Model gagal memproses data yang diunggah: {e}"
-                else:
-                    result = df_upload.head(len(clean)).copy()
-                    result["harga_prediksi"] = preds
-                    csv_b64 = base64.b64encode(result.to_csv(index=False).encode("utf-8")).decode()
-                    batch_result = {
-                        "n_rows": len(result),
-                        "table": result.to_html(classes="table table-sm table-striped dataframe", index=False, border=0, justify="left"),
-                        "chart": charts.batch_result_chart(result),
-                        "download_href": f"data:text/csv;base64,{csv_b64}",
-                    }
-
-    ctx = base_context(request, "/prediksi")
-    ctx.update({
-        "valid_kota": valid_kota,
-        "valid_tipe": valid_tipe,
-        "kondisi_options": ORDINAL_ORDER[0],
-        "all_features": ALL_FEATURES,
-        "prediction": None,
-        "error": error,
-        "warnings_list": warnings_list,
-        "batch_result": batch_result,
-    })
-    return templates.TemplateResponse(request, "prediksi.html", ctx)
-
-
-@app.get("/prediksi/template.csv")
-def download_template():
-    template_df = pd.DataFrame([{c: "" for c in ALL_FEATURES}])
-    buf = io.StringIO()
-    template_df.to_csv(buf, index=False)
-    buf.seek(0)
-    return StreamingResponse(
-        iter([buf.getvalue()]),
-        media_type="text/csv",
-        headers={"Content-Disposition": "attachment; filename=template_prediksi_rumahku.csv"},
-    )
 
 
 # ================================================================== Evaluasi Model
@@ -246,6 +204,8 @@ def evaluasi(request: Request):
     test_pred_df = load_test_predictions()
     _, best_name = load_model()
     _, df = load_data()
+    all_hyperparams = load_best_hyperparameters()
+    best_hyperparams = all_hyperparams.get(best_name, {})
 
     model_bars = [
         {"name": name, "r2_pct": round(row["R2"] * 100, 1), "is_best": name == best_name}
@@ -262,6 +222,8 @@ def evaluasi(request: Request):
         "rmse_val": f"{metrics_df.loc[best_name, 'RMSE']:,.0f}",
         "r2_val": f"{metrics_df.loc[best_name, 'R2']:.3f}",
         "harga_rata2": f"{df[TARGET].mean():,.0f}",
+        "best_hyperparams": best_hyperparams,
+        "cv_best_r2": metrics_df.loc[best_name].get("cv_best_r2"),
     })
     return templates.TemplateResponse(request, "evaluasi.html", ctx)
 

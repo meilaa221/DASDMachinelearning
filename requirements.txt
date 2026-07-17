@@ -14,6 +14,7 @@ fastapi>=0.110
 uvicorn>=0.29
 jinja2>=3.1
 python-multipart>=0.0.9
+slowapi>=0.1.9
 
 # Dipakai untuk membangun/menjalankan ulang notebook (notebooks/build_notebook.py)
 nbformat>=5.10

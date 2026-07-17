@@ -19,7 +19,7 @@ uvicorn app.main:app --reload</code></pre>
         <tr><td><strong>Halaman Utama</strong></td><td>Ringkasan agregat dataset dan tujuan aplikasi</td></tr>
         <tr><td><strong>Tampilan Dataset</strong></td><td>Melihat contoh data, statistik deskriptif, dan kualitas data</td></tr>
         <tr><td><strong>Visualisasi</strong></td><td>Eksplorasi interaktif pola harga berdasarkan tipe, kondisi, lokasi, dan luas</td></tr>
-        <tr><td><strong>Prediksi Harga</strong></td><td>Prediksi manual (form) atau batch (upload CSV)</td></tr>
+        <tr><td><strong>Prediksi Harga</strong></td><td>Prediksi manual lewat form input</td></tr>
         <tr><td><strong>Evaluasi Model</strong></td><td>Metrik performa dan grafik aktual vs prediksi tiap model</td></tr>
         <tr><td><strong>Insight</strong></td><td>Temuan utama dari analisis data dan model</td></tr>
         <tr><td><strong>Rekomendasi</strong></td><td>Saran keputusan untuk bisnis, pengguna, dan pengembangan lanjutan</td></tr>
@@ -28,20 +28,10 @@ uvicorn app.main:app --reload</code></pre>
 
 <h5 class="section-title"><i class="bi bi-cursor"></i> Cara menggunakan fitur prediksi manual</h5>
 <ol>
-    <li>Buka halaman <strong>Prediksi Harga</strong>, tab <strong>Input Manual</strong>.</li>
+    <li>Buka halaman <strong>Prediksi Harga</strong>.</li>
     <li>Isi seluruh kolom sesuai karakteristik properti yang ingin diestimasi harganya.</li>
     <li>Klik tombol <strong>Prediksi Harga</strong>.</li>
     <li>Hasil estimasi beserta rentang wajar (&plusmn; MAE model) akan ditampilkan.</li>
-</ol>
-
-<h5 class="section-title"><i class="bi bi-upload"></i> Cara menggunakan fitur prediksi batch (upload CSV)</h5>
-<ol>
-    <li>Buka halaman <strong>Prediksi Harga</strong>, tab <strong>Upload CSV (Batch)</strong>.</li>
-    <li>(Opsional) Klik <strong>Download Template CSV</strong> untuk melihat format kolom yang dibutuhkan.</li>
-    <li>Upload file CSV berisi banyak properti sekaligus.</li>
-    <li>Aplikasi otomatis memvalidasi &amp; membersihkan data yang kosong/tidak valid (lihat pesan
-        peringatan jika ada), lalu menampilkan hasil prediksi untuk semua baris.</li>
-    <li>Klik <strong>Download Hasil Prediksi (CSV)</strong> untuk menyimpan hasilnya.</li>
 </ol>
 
 <h5 class="section-title"><i class="bi bi-gear"></i> Catatan teknis</h5>
@@ -51,11 +41,32 @@ uvicorn app.main:app --reload</code></pre>
         — aplikasi <strong>tidak</strong> melakukan training ulang setiap kali dijalankan,
         sehingga tetap responsif.</li>
     <li>Missing value pada fitur diisi otomatis oleh <strong>KNN Imputer</strong> di dalam
-        pipeline (bukan dihapus barisnya), termasuk untuk data baru yang diunggah lewat fitur
-        batch.</li>
+        pipeline (bukan dihapus barisnya).</li>
     <li>Untuk melatih ulang model (mis. setelah data diperbarui), jalankan:
         <pre class="bg-light p-3 rounded"><code>cd src
 python train_model.py</code></pre>
+        Proses ini otomatis membandingkan 4 algoritma, lalu melakukan hyperparameter tuning
+        (<code>RandomizedSearchCV</code>) &amp; feature selection (<code>SelectKBest</code>) pada
+        model dengan performa terbaik — lihat hasilnya di halaman <strong>Evaluasi Model</strong>.
     </li>
 </ul>
+
+<h5 class="section-title"><i class="bi bi-shield-check"></i> Optimasi &amp; keamanan sistem</h5>
+<table class="table table-sm table-bordered">
+    <thead><tr><th>Aspek</th><th>Penerapan</th></tr></thead>
+    <tbody>
+        <tr><td><strong>Caching</strong></td><td>Data, model, dan metrik dimuat sekali per proses
+            server (<code>functools.lru_cache</code>), bukan dibaca ulang setiap request.</td></tr>
+        <tr><td><strong>Logging</strong></td><td>Setiap request dan hasil prediksi (sukses/gagal)
+            dicatat ke <code>logs/app.log</code> (rotating log) untuk keperluan audit &amp; debugging.</td></tr>
+        <tr><td><strong>Rate limiting</strong></td><td>Endpoint prediksi manual dibatasi 20
+            request/menit per IP, untuk mencegah penyalahgunaan.</td></tr>
+        <tr><td><strong>Backup</strong></td><td>Script <code>scripts/backup.py</code> menyalin
+            <code>data/</code> dan <code>models/</code> ke folder <code>backups/</code> bertanda waktu,
+            dengan retensi otomatis 5 backup terakhir.</td></tr>
+        <tr><td><strong>Containerization</strong></td><td>Aplikasi bisa dijalankan lewat Docker
+            (<code>Dockerfile</code> tersedia di root proyek) agar lingkungan eksekusi konsisten
+            di server mana pun.</td></tr>
+    </tbody>
+</table>
 {% endblock %}
